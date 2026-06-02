@@ -1,0 +1,12 @@
+{
+  "name": "pi-config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal pi configuration — themes, extensions, and customizations",
+  "keywords": ["pi-package"],
+  "license": "MIT",
+  "pi": {
+    "extensions": ["./extensions"],
+    "themes": ["./themes"]
+  }
+}

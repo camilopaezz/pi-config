@@ -1,0 +1,15 @@
+# External extensions — install on a new system with:
+#   pi install <source>
+
+npm:@juicesharp/rpiv-ask-user-question
+npm:@juicesharp/rpiv-advisor
+npm:@juicesharp/rpiv-btw
+npm:@juicesharp/rpiv-web-tools
+npm:@ayulab/pi-rewind
+git:github.com/DietrichGebert/ponytail
+
+# One-liner to install them all:
+# for pkg in npm:@juicesharp/rpiv-ask-user-question npm:@juicesharp/rpiv-advisor npm:@juicesharp/rpiv-btw npm:@juicesharp/rpiv-web-tools npm:@ayulab/pi-rewind git:github.com/DietrichGebert/ponytail; do pi install "$pkg"; done
+
+# To also bring over the local pi-config package (themes + custom extensions):
+#   cd /path/to/pi-config && pi install .

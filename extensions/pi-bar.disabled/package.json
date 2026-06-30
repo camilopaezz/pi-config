@@ -1,0 +1,56 @@
+{
+  "name": "pi-bar",
+  "version": "0.3.39",
+  "description": "Pi footer/statusline showing active model, thinking level, context pressure, live progress updates, and extension statuses.",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi",
+    "pi-bar",
+    "footer",
+    "statusline",
+    "model",
+    "thinking",
+    "context",
+    "context-window",
+    "progress"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tianrendong/pi-bar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tianrendong/pi-bar/issues"
+  },
+  "homepage": "https://github.com/tianrendong/pi-bar#readme",
+  "files": [
+    "assets",
+    "extensions",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-ai": {
+      "optional": true
+    },
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    }
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/status-footer.ts"
+    ],
+    "image": "https://cdn.jsdelivr.net/npm/pi-bar@0.3.38/assets/screenshot-yellow.png"
+  }
+}

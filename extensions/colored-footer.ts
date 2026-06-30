@@ -2,7 +2,7 @@
  * Colored Footer Extension
  *
  * Replaces pi's default footer with a colored custom footer that shows
- * the working directory, git branch, current model, and token/cost stats.
+ * the working directory, git branch, current model, thinking level, and token/cost stats.
  */
 
 import type { AssistantMessage } from "@earendil-works/pi-ai";
@@ -15,6 +15,19 @@ function trimHome(cwd: string): string {
 	if (cwd === home) return "~";
 	if (cwd.startsWith(home + "/")) return "~" + cwd.slice(home.length);
 	return cwd;
+}
+
+/** Map thinking level to the corresponding theme color token. */
+function thinkingColor(level: string): string {
+	switch (level) {
+		case "off": return "thinkingOff";
+		case "minimal": return "thinkingMinimal";
+		case "low": return "thinkingLow";
+		case "medium": return "thinkingMedium";
+		case "high": return "thinkingHigh";
+		case "xhigh": return "thinkingXhigh";
+		default: return "muted";
+	}
 }
 
 export default function (pi: ExtensionAPI) {
@@ -46,24 +59,30 @@ export default function (pi: ExtensionAPI) {
 					const branch = footerData.getGitBranch();
 					const fmt = (n: number) => (n < 1000 ? `${n}` : `${(n / 1000).toFixed(1)}k`);
 
+					const modelId = ctx.model?.id || "no-model";
+					const thinking = pi.getThinkingLevel();
+
 					const left = [
 						theme.fg("accent", "▌"),
 						" ",
 						theme.fg("text", trimHome(ctx.cwd)),
 						branch ? ` ${theme.fg("warning", `(${branch})`)}` : "",
+						"  ",
+						theme.fg("muted", modelId),
+						"  ",
+						theme.fg(thinkingColor(thinking), thinking),
 					].join("");
 
-					const tpsStatus = footerData.getExtensionStatuses().get("tps");
+					const tpsStatus = footerData?.getExtensionStatuses?.()?.get("tps");
 
 					const rightParts = [
-						theme.fg("accent", ctx.model?.id || "no-model"),
-						" ",
 						`${theme.fg("success", `↑${fmt(input)}`)} ${theme.fg("mdLink", `↓${fmt(output)}`)}`,
 					];
 					if (tpsStatus) {
 						rightParts.push(" ", tpsStatus);
 					}
 					rightParts.push(` ${theme.fg("error", `$${cost.toFixed(3)}`)}`);
+					rightParts.push(`  ${theme.fg("dim", ctx.model?.provider || "")}`);
 
 					const right = rightParts.join("");
 
@@ -75,6 +94,7 @@ export default function (pi: ExtensionAPI) {
 	}
 
 	pi.on("session_start", async (_event, ctx) => {
+		if (!ctx.hasUI) return;
 		setFooter(ctx);
 	});
 

@@ -161,7 +161,7 @@ export default function (pi: ExtensionAPI) {
 					ctx.ui.notify("Yeet: nothing to commit or model returned empty", "warning");
 					pi.sendMessage({
 						customType: "yeet",
-						content: "**Yeet: nothing to do**\n\nNo changes to commit, or the model returned no output.",
+						content: `**Yeet: nothing to do**\n\ncmd: ${command} ${childArgs.slice(baseArgs.length).join(" ")}\nstderr: ${stderr || "(none)"}`,
 						display: true,
 					});
 				} else {

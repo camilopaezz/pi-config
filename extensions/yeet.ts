@@ -1,6 +1,4 @@
-import type { Model } from "@earendil-works/pi-ai";
-import { DynamicBorder, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { Container, type SelectItem, SelectList, Text } from "@earendil-works/pi-tui";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 const YEET_PROMPT = `Commit and push the current repository changes.
 
@@ -19,79 +17,12 @@ Steps:
 Keep the commit message concise.`;
 
 export default function (pi: ExtensionAPI) {
-	let yeetModel: Model<any> | null = null;
-
-	pi.registerCommand("yeet-model", {
-		description: "Set the model used by /yeet",
-		handler: async (_args, ctx) => {
-			const models = ctx.modelRegistry.getAvailable();
-			if (models.length === 0) {
-				ctx.ui.notify("No available models found", "error");
-				return;
-			}
-
-			const items: SelectItem[] = models.map((m) => ({
-				value: `${m.provider}/${m.id}`,
-				label: `${m.provider}/${m.id}`,
-			}));
-
-			const result = await ctx.ui.custom<string | null>((tui, theme, _kb, done) => {
-				const container = new Container();
-
-				container.addChild(new DynamicBorder((s: string) => theme.fg("accent", s)));
-				container.addChild(new Text(theme.fg("accent", theme.bold("Select yeet model")), 1, 0));
-
-				const selectList = new SelectList(items, Math.min(items.length, 10), {
-					selectedPrefix: (t) => theme.fg("accent", t),
-					selectedText: (t) => theme.fg("accent", t),
-					description: (t) => theme.fg("muted", t),
-					scrollInfo: (t) => theme.fg("dim", t),
-					noMatch: (t) => theme.fg("warning", t),
-				});
-				selectList.onSelect = (item) => done(item.value);
-				selectList.onCancel = () => done(null);
-				container.addChild(selectList);
-
-				container.addChild(new Text(theme.fg("dim", "↑↓ navigate • enter select • esc cancel"), 1, 0));
-				container.addChild(new DynamicBorder((s: string) => theme.fg("accent", s)));
-
-				return {
-					render: (w) => container.render(w),
-					invalidate: () => container.invalidate(),
-					handleInput: (data) => { selectList.handleInput(data); tui.requestRender(); },
-				};
-			});
-
-			if (result === null) return;
-
-			const model = models.find((m) => `${m.provider}/${m.id}` === result);
-			if (model) {
-				yeetModel = model;
-				ctx.ui.notify(`Yeet model set to ${result}`, "info");
-			}
-		},
-	});
-
 	pi.registerCommand("yeet", {
-		description: "Add, commit, and push the current repo changes (runs in a worker subagent)",
+		description: "Add, commit, and push the current repo changes",
 		handler: async (args, ctx) => {
-			if (!yeetModel) {
-				ctx.ui.notify("No yeet model configured. Run /yeet-model first.", "error");
-				return;
-			}
-
-			const extra = args?.trim() ? `\n\nAdditional instructions from the user:\n${args.trim()}` : "";
-
-			const prompt = [
-				`Delegate the following task to a worker subagent with model \`${yeetModel.provider}/${yeetModel.id}\` in fresh context.`,
-				"Pass the task exactly as-is — do not add or modify the instructions.",
-				"When the worker finishes, briefly report what happened (commits made, branch pushed, remote URL).",
-				"",
-				"Task:",
-				"---",
-				YEET_PROMPT + extra,
-				"---",
-			].join("\n");
+			const prompt = args?.trim()
+				? `${YEET_PROMPT}\n\nAdditional instructions from the user:\n${args.trim()}`
+				: YEET_PROMPT;
 
 			if (ctx.isIdle()) {
 				pi.sendUserMessage(prompt);
